@@ -4,6 +4,7 @@
 \usepackage{geometry}
 \usepackage{fancyhdr}
 \usepackage{graphicx}
+\AtBeginDocument{\graphicspath{{images/}}}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -198,6 +199,14 @@ W W W W W
 \end{verbatim}
 \caption{Gitterstruktur und Wandentfernung}
 \end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{maze.png}
+\caption{Maze-Generierung durch randomisierte Tiefensuche}
+\label{fig:maze}
+\end{figure}
+
 
 \subsection{Datenrepräsentation als NumPy-Matrix}
 
@@ -405,6 +414,13 @@ def _setup_matplotlib_canvas(self):
     \item \textbf{Export-Funktion}: MP4-Video-Export mit konfigurierbaren Optionen
 \end{itemize}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{gui.png}
+\caption{Benutzeroberfläche der Anwendung mit allen Steuerelementen}
+\label{fig:gui}
+\end{figure}
+
 % ================== PATHFINDING-ALGORITHMEN ==================
 \section{Pathfinding-Algorithmen}
 
@@ -491,6 +507,13 @@ Geschwindigkeit & Mittel & Langsam & Schnell \\
     \item \textbf{Dijkstra}: Netzwerk-Routing, soziale Netzwerkanalyse, kritische Systeme
     \item \textbf{Greedy BFS}: Echtzeit-Anwendungen, Prototyping, approximative Lösungen
 \end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{run.png}
+\caption{Vergleichende Ausführung aller drei Pathfinding-Algorithmen mit Performance-Metriken}
+\label{fig:algorithms}
+\end{figure}
 
 % ================== IMPLEMENTIERUNGSDETAILS ==================
 \section{Implementierungsdetails}
