@@ -80,37 +80,35 @@ class Grid:
                 yield self.grid.copy()
 
         # Add extra openings
-        tried = set()
-        extra_openings = int(self.width * self.height * extra_openings / 100)  # Convert percentage to number of openings
-        while extra_openings > 0:
-            #get random position in the grid
-            y = rng.integers(1, self.height - 1)
-            x = rng.integers(1, self.width - 1)
-            if self.grid[y, x] != 1:
-                continue
-            
-            if (y, x) in tried:
-                continue
-            tried.add((y, x))
+        inner_walls = np.argwhere(
+            (self.grid == 1) &
+            (np.arange(self.height)[:, None] > 0) & (np.arange(self.height)[:, None] < self.height-1) &   # y ≠ 0, h-1
+            (np.arange(self.width)     > 0) & (np.arange(self.width)     < self.width-1)               # x ≠ 0, w-1
+        )
+        rng.shuffle(inner_walls)
 
-            neighbors = self.neighbors((y, x))
-            adjacent_walls = [n for n in neighbors if self.grid[n] == 1]
+        # gewünschte Anzahl tatsächlicher Öffnungen
+        openings_left = int(self.width * self.height * extra_openings / 100)
 
+        def is_candidate(y, x):
+            neigh = self.neighbors((y, x))
+            adj_walls = [n for n in neigh if self.grid[n] == 1]
             # No cross, lone  or T-shape wall
-            if len(adjacent_walls) != 2:
-                continue
-
+            if len(adj_walls) != 2:
+                return False
+            
             # Check if the two adjacent walls are in the same row or column -> no corner
-            if adjacent_walls[0][0] != adjacent_walls[1][0] and adjacent_walls[0][1] != adjacent_walls[1][1]:
-                continue
+            if adj_walls[0][0] != adj_walls[1][0] and adj_walls[0][1] != adj_walls[1][1]:
+                return False
+            
+            return True
 
-            # Dont carve a lone wall
-            if len([n for n in self.neighbors(adjacent_walls[0]) if self.grid[n] == 0]) == 3 or len([n for n in self.neighbors(adjacent_walls[1]) if self.grid[n] == 0]) == 3:
-                    continue
-                
-            # All test passed, carve the path
-            self.grid[y, x] = 0
-            extra_openings -= 1
+        for y, x in inner_walls:
+            if openings_left == 0:
+                break
+            if is_candidate(y, x):
+                self.grid[y, x] = 0
+                openings_left -= 1
 
             # for animation
             if animate:
