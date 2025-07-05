@@ -379,7 +379,7 @@ class GUI(tk.Tk):
         if maze_grid.shape == (1,):
             # Sentinel value indicates algorithm completion
             self.current_animation.event_source.stop()
-            self.after(500, self._start_next_algorithm)
+            self.after(1000, self._start_next_algorithm)
             return []
 
         self.maze_image_display.set_data(maze_grid)
