@@ -26,13 +26,24 @@ class Grid:
 
         self.grid = np.ones((self.height, self.width), dtype=int)  # 1 = wall, 0 = path
 
+        def rand_odd(rng: Generator, low: int, high: int) -> int:
+            if low % 2 == 0:
+                low += 1                
+                high -= 1             
+            if low > high:
+                raise ValueError("Kein ungerader Wert in diesem Bereich")
+
+            n = (high - low) // 2 + 1 
+            return low + 2 * rng.integers(n)
+
         start_x = 0
-        start_y = rng.choice(range(1, self.height // 2 + 1, 2)) # Ensure start is in the upper half and odd row
+        start_y = rand_odd(rng, 1, self.height // 4) # first quarter and odd row
         self.start = (start_y, start_x)
         self.grid[self.start] = 2
 
         end_x = self.width - 1
-        end_y = rng.choice(range(self.height // 2 + 1, self.height - 1, 2)) # Ensure end is in the lower half and odd row
+        end_lower_bound = 3 * self.height // 4
+        end_y = rand_odd(rng, end_lower_bound, self.height - 2) # last quarter and odd row
         self.goal = (end_y, end_x)
         self.grid[self.goal] = 3
 
@@ -99,6 +110,10 @@ class Grid:
             
             # Check if the two adjacent walls are in the same row or column -> no corner
             if adj_walls[0][0] != adj_walls[1][0] and adj_walls[0][1] != adj_walls[1][1]:
+                return False
+
+            # No lone wall afterwards
+            if not all(sum(self.grid[n] == 1 for n in self.neighbors(w)) >= 2 for w in adj_walls):
                 return False
             
             return True

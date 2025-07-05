@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from itertools import chain
@@ -253,7 +254,21 @@ class GUI(tk.Tk):
             self.current_animation.event_source.stop()
             self.after(500, self.start_all_pathfinding_algorithms)
             return []
-        
+
+        # Measure Rendering FPS
+        if not hasattr(self, "_t0"):
+            self._t0 = time.perf_counter()
+            self.live_fps_list = []
+        if not hasattr(self, "_frames_done"):
+            self._frames_done = 0
+        self._frames_done += 1
+
+        if self._frames_done % 50 == 0 and len(self.live_fps_list) < 6:
+            now = time.perf_counter()
+            self.live_fps = 50 / (now - self._t0 - 50 * (self.animation_delay_slider.get() / 1000))
+            self.live_fps_list.append(self.live_fps)
+            self._t0 = now
+
         self.maze_image_display.set_data(maze_data)
         return (self.maze_image_display,)
 
@@ -528,8 +543,13 @@ class GUI(tk.Tk):
             blit=False, repeat=False, cache_frame_data=False
         )
         export_animation.pause()
-        export_animation.save(output_filename, writer='ffmpeg', fps=1000/animation_delay)
+
+        live_fps = np.mean(self.live_fps_list) if hasattr(self, 'live_fps_list') and self.live_fps_list else 30
+        fps = min(1000 / animation_delay, live_fps)
+        
+        export_animation.save(output_filename, writer='ffmpeg', fps=fps)
         plt.close(export_figure)
+        messagebox.showinfo("Export Complete", f"Animation saved to {output_filename}")
 
     # -------------------- APPLICATION LIFECYCLE --------------------
     def _on_application_close(self):
